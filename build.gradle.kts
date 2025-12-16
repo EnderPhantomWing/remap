@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "2.0.0"
+    kotlin("jvm") version "2.3.0"
     `maven-publish`
 }
 
@@ -25,7 +25,7 @@ kotlinVersion("1.9.0")
 kotlinVersion("2.0.0")
 
 dependencies {
-    api("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.5.21")
+    api("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.3.0")
     implementation(kotlin("stdlib"))
     api("org.cadixdev:lorenz:0.5.0")
     runtimeOnly("net.java.dev.jna:jna:5.10.0") // don't strictly need this but IDEA spams log without
@@ -56,8 +56,8 @@ tasks.test {
 
 tasks.withType<KotlinCompile> {
     compilerOptions {
-        apiVersion.set(KotlinVersion.KOTLIN_1_8)
-        apiVersion.set(KotlinVersion.KOTLIN_1_8)
+        apiVersion.set(KotlinVersion.KOTLIN_2_3)
+        apiVersion.set(KotlinVersion.KOTLIN_2_3)
     }
 }
 
