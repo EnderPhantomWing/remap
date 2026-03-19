@@ -118,6 +118,62 @@ class TestMixinInjections {
     }
 
     @Test
+    fun `considers synthetic bridge methods in ambiguity test`() {
+        val (_, errors) = TestData.remapWithErrors("""
+            @org.spongepowered.asm.mixin.Mixin(a.pkg.A.class)
+            class MixinA {
+                @org.spongepowered.asm.mixin.injection.Inject(method = "aSpecializableMethod")
+                private void test() {}
+            }
+        """.trimIndent())
+        errors shouldHaveSize 1
+        val (line, error) = errors[0]
+        line shouldBe 2
+        error shouldContain "aSpecializableMethod"
+        error shouldContain "()La/pkg/AParent;"
+        error shouldContain "()La/pkg/A;"
+
+        TestData.remap("""
+            @org.spongepowered.asm.mixin.Mixin(a.pkg.A.class)
+            class MixinA {
+                @org.spongepowered.asm.mixin.injection.Inject(method = "aSpecializableMethod()La/pkg/A;")
+                private void test() {}
+                @org.spongepowered.asm.mixin.injection.Inject(method = "aSpecializableMethod()La/pkg/AParent;")
+                private void testBridge() {}
+            }
+        """.trimIndent()) shouldBe """
+            @org.spongepowered.asm.mixin.Mixin(b.pkg.B.class)
+            class MixinA {
+                @org.spongepowered.asm.mixin.injection.Inject(method = "bSpecializableMethod()Lb/pkg/B;")
+                private void test() {}
+                @org.spongepowered.asm.mixin.injection.Inject(method = "bSpecializableMethod()Lb/pkg/BParent;")
+                private void testBridge() {}
+            }
+        """.trimIndent()
+    }
+
+    @Test
+    fun `remaps to unambiguous target with changed signature even in presence of bridge method`() {
+        TestData.remap("""
+            @org.spongepowered.asm.mixin.Mixin(a.pkg.A.class)
+            class MixinA {
+                @org.spongepowered.asm.mixin.injection.Inject(method = "aSpecializableMethodWithChangingSignature()La/pkg/A;")
+                private void test() {}
+                @org.spongepowered.asm.mixin.injection.Inject(method = "aSpecializableMethodWithChangingSignature()La/pkg/AParent;")
+                private void testBridge() {}
+            }
+        """.trimIndent()) shouldBe """
+            @org.spongepowered.asm.mixin.Mixin(b.pkg.B.class)
+            class MixinA {
+                @org.spongepowered.asm.mixin.injection.Inject(method = "bSpecializableMethodWithChangingSignature(I)Lb/pkg/B;")
+                private void test() {}
+                @org.spongepowered.asm.mixin.injection.Inject(method = "bSpecializableMethodWithChangingSignature(I)Lb/pkg/BParent;")
+                private void testBridge() {}
+            }
+        """.trimIndent()
+    }
+
+    @Test
     fun `remaps constructor target`() {
         TestData.remap("""
             @org.spongepowered.asm.mixin.Mixin(a.pkg.A.class)
@@ -212,6 +268,29 @@ class TestMixinInjections {
             class MixinA {
                 @Inject(method = "bMethod", at = @At(target = "Lb/pkg/B;unmappedOverloaded(Lb/pkg/B;)V"))
                 private void test() {}
+            }
+        """.trimIndent()
+    }
+
+    @Test
+    fun `remaps @At target of field which needs to be resolved`() {
+        TestData.remap($$"""
+            import org.spongepowered.asm.mixin.injection.At; import org.spongepowered.asm.mixin.injection.Inject;
+            @org.spongepowered.asm.mixin.Mixin(a.pkg.A.class)
+            class MixinA {
+                @Inject(method = "aMethod", at = @At(target = "La/pkg/A;a:La/pkg/A;"))
+                private void testPrivate() {}
+                @Inject(method = "aMethod", at = @At(target = "La/pkg/A$InnerA;aPub:La/pkg/A;"))
+                private void testPublic() {}
+            }
+        """.trimIndent()) shouldBe $$"""
+            import org.spongepowered.asm.mixin.injection.At; import org.spongepowered.asm.mixin.injection.Inject;
+            @org.spongepowered.asm.mixin.Mixin(b.pkg.B.class)
+            class MixinA {
+                @Inject(method = "bMethod", at = @At(target = "Lb/pkg/B;b:Lb/pkg/B;"))
+                private void testPrivate() {}
+                @Inject(method = "bMethod", at = @At(target = "Lb/pkg/B$InnerB;bPub:Lb/pkg/B;"))
+                private void testPublic() {}
             }
         """.trimIndent()
     }

@@ -74,6 +74,9 @@ class TestReferences {
                 a.pkg.A.InnerA test() {
                     return new a.pkg.A.InnerA();
                 }
+                a.pkg.AGeneric<a.pkg.A> test() {
+                    return new a.pkg.AGeneric();
+                }
             }
         """.trimIndent()) shouldBe """
             class test {
@@ -82,6 +85,26 @@ class TestReferences {
                 }
                 b.pkg.B.InnerB test() {
                     return new b.pkg.B.InnerB();
+                }
+                b.pkg.BGeneric<b.pkg.B> test() {
+                    return new b.pkg.BGeneric();
+                }
+            }
+        """.trimIndent()
+    }
+
+    @Test
+    fun `remaps method override with narrowed argument type`() {
+        TestData.remap("""
+            class Test extends a.pkg.A.GenericA<a.pkg.A> {
+                @Override
+                public void aMethod(a.pkg.A t) {
+                }
+            }
+        """.trimIndent()) shouldBe """
+            class Test extends b.pkg.B.GenericB<b.pkg.B> {
+                @Override
+                public void bMethod(b.pkg.B t) {
                 }
             }
         """.trimIndent()

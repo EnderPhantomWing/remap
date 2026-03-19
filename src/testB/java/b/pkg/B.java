@@ -2,6 +2,7 @@ package b.pkg;
 
 public class B extends BParent implements BInterface {
     private B b;
+    public B bPub;
     private int bField;
 
     public B() {
@@ -95,15 +96,29 @@ public class B extends BParent implements BInterface {
 
     @Override
     public void bInterfaceMethod() {
-        new B() {};
+        new B() {
+            private int bAnonField;
+        };
+    }
+
+    @Override
+    public B bSpecializableMethod() {
+        return this;
+    }
+
+    @Override
+    public B bSpecializableMethodWithChangingSignature(int newArgument) {
+        return this;
     }
 
     public class Inner {
         private int bField;
     }
 
-    public class InnerB {
+    public class InnerB extends B {
     }
 
-    public class GenericB<T> {}
+    public class GenericB<T> {
+        public void bMethod(T t) {}
+    }
 }
