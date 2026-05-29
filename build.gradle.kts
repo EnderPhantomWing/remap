@@ -12,7 +12,9 @@ group = "com.github.replaymod"
 version = "SNAPSHOT"
 
 repositories {
+    mavenLocal()
     mavenCentral()
+    gradlePluginPortal()
     maven("https://repo.spongepowered.org/repository/maven-public/")
 }
 
@@ -27,8 +29,8 @@ kotlinVersion("2.3.21", isPrimaryVersion = true)
 
 dependencies {
     api("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.3.21")
-    implementation(kotlin("stdlib"))
-    implementation("org.ow2.asm:asm-tree:9.9.1")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.3.21")
+    implementation("org.ow2.asm:asm-tree:9.10.1")
     api("org.cadixdev:lorenz:0.5.8")
     runtimeOnly("net.java.dev.jna:jna:5.18.1") // don't strictly need this but IDEA spams log without
 
@@ -38,6 +40,7 @@ dependencies {
     testRuntimeOnly(testA.output)
     testRuntimeOnly(testB.output)
     testRuntimeOnly("org.spongepowered:mixin:0.8.7")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.1.0")
 }
 
 tasks.named<Jar>("jar") {
