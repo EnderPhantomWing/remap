@@ -2,11 +2,11 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "2.3.0"
+    kotlin("jvm") version "2.3.21"
     `maven-publish`
 }
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 
 group = "com.github.replaymod"
 version = "SNAPSHOT"
@@ -19,24 +19,25 @@ repositories {
 val testA by sourceSets.creating
 val testB by sourceSets.creating
 
-kotlinVersion("1.5.21", isPrimaryVersion = true)
+kotlinVersion("1.5.21")
 kotlinVersion("1.6.20")
 kotlinVersion("1.9.0")
 kotlinVersion("2.0.0")
+kotlinVersion("2.3.21", isPrimaryVersion = true)
 
 dependencies {
-    api("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.5.21")
+    api("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.3.21")
     implementation(kotlin("stdlib"))
     implementation("org.ow2.asm:asm-tree:9.9.1")
-    api("org.cadixdev:lorenz:0.5.0")
-    runtimeOnly("net.java.dev.jna:jna:5.10.0") // don't strictly need this but IDEA spams log without
+    api("org.cadixdev:lorenz:0.5.8")
+    runtimeOnly("net.java.dev.jna:jna:5.18.1") // don't strictly need this but IDEA spams log without
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.7.1")
-    testImplementation("io.kotest:kotest-assertions-core:4.6.3")
+    testImplementation("org.junit.jupiter:junit-jupiter:6.1.0")
+    testImplementation("io.kotest:kotest-assertions-core:6.1.11")
 
     testRuntimeOnly(testA.output)
     testRuntimeOnly(testB.output)
-    testRuntimeOnly("org.spongepowered:mixin:0.8.4")
+    testRuntimeOnly("org.spongepowered:mixin:0.8.7")
 }
 
 tasks.named<Jar>("jar") {
@@ -57,8 +58,8 @@ tasks.test {
 
 tasks.withType<KotlinCompile> {
     compilerOptions {
-        apiVersion.set(KotlinVersion.KOTLIN_1_9)
-        languageVersion.set(KotlinVersion.KOTLIN_1_9)
+        apiVersion.set(KotlinVersion.KOTLIN_2_3)
+        languageVersion.set(KotlinVersion.KOTLIN_2_3)
     }
 }
 

@@ -2,6 +2,7 @@ package com.replaymod.gradle.remap
 
 import com.replaymod.gradle.remap.legacy.LegacyMapping
 import org.cadixdev.lorenz.MappingSet
+import org.jetbrains.kotlin.K1Deprecation
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.config.ContentRoot
 import org.jetbrains.kotlin.cli.common.environment.setIdeaIoUseFallback
@@ -51,6 +52,7 @@ class Transformer(private val map: MappingSet) {
     fun remap(sources: Map<String, String>): Map<String, Pair<String, List<Pair<Int, String>>>> =
             remap(sources, emptyMap())
 
+    @OptIn(K1Deprecation::class)
     @Throws(IOException::class)
     fun remap(sources: Map<String, String>, processedSources: Map<String, String>): Map<String, Pair<String, List<Pair<Int, String>>>> {
         val tmpDir = Files.createTempDirectory("remap")
@@ -80,7 +82,7 @@ class Transformer(private val map: MappingSet) {
             config.add<ContentRoot>(CLIConfigurationKeys.CONTENT_ROOTS, kotlinSourceRoot)
             config.addAll<ContentRoot>(CLIConfigurationKeys.CONTENT_ROOTS, classpath!!.map { JvmClasspathRoot(File(it)) })
             config.put<MessageCollector>(
-                CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY,
+                CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY,
                 if (enableMessageCollector) PrintingMessageCollector(System.err, MessageRenderer.GRADLE_STYLE, verboseCompilerMessages)
                 else MessageCollector.NONE
             )
@@ -189,6 +191,7 @@ class Transformer(private val map: MappingSet) {
         }
     }
 
+    @OptIn(K1Deprecation::class)
     private fun setupRemappedProject(disposable: Disposable, classpath: Array<String>, sourceRoot: Path): KotlinCoreEnvironment {
         val config = CompilerConfiguration()
         (remappedJdkHome ?: jdkHome)?.let { config.setupJdk(it) }
@@ -198,7 +201,7 @@ class Transformer(private val map: MappingSet) {
             config.add(CLIConfigurationKeys.CONTENT_ROOTS, JavaSourceRoot(sourceRoot.toFile(), ""))
         }
         config.put(
-            CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY,
+            CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY,
             if (enableMessageCollector) PrintingMessageCollector(System.err, MessageRenderer.GRADLE_STYLE, verboseCompilerMessages)
             else MessageCollector.NONE
         )
